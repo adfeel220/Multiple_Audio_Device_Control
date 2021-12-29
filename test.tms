@@ -1,0 +1,39 @@
+# This is a time stamp script
+# Use '#' for commenting
+
+# The event can be defined by
+# 1. New audio event: create a new audio playback.
+#    Syntax :-
+#    N[ew] {start time} {device name} {filename} [{volume}]
+#    
+#    ex: 
+#    n 0:15 myDevice test.mp3          => 'myDevice' will play test.mp3 at 0:15 until test.mp3 ends.
+#    New 1:20 myDevice test.mp3 20     => 'myDevice' will play test.mp3 at 1:20 with volume 20%.
+
+# 2. Adjust volume:
+#    V[olume] {time} {device name} {new volume}
+#    
+#    ex:
+#    v 2:20 myDevice2 50        => Change the volume of myDevice2 to 50% at 2:20
+
+
+# Below you can define your time stamp code
+# Be sure each command is seperated by lines
+# 
+# Please write the time stamps incrementally according the start time, otherwise some errors will occur.
+
+new 0:00 local ZaWarudo.wav
+new 0:02 local konodioda.mp3
+new 0:03 pi PillarMen.wav
+new 0:06 local wry.wav
+
+v 0:04 pi 40
+
+new 0:07 local pornhub-intro.wav
+
+v 0:07.5 local 40
+new 0:09 pi ToBeContinue.wav
+
+new 0:10 local ToBeContinue.wav 100
+v 0:12 local 50
+v 0:13 local 10

@@ -1,0 +1,100 @@
+extends layout
+
+block content
+  h1= title
+  body 
+    //- parallel display
+    div(style="width=100%; display: table")
+      div(style="display: table-row")
+
+        //- left page
+        div(style="display: table-cell; width=50%")
+
+          //- List of utilities
+          ul 
+            //- Control panel for upload files
+            li Please upload the required audio files below.
+              form(action="/uploadFile", method="post", enctype="multipart/form-data")
+                input(type="file", name="fileUpload")
+
+                input(type="submit", value="Upload")
+
+
+            //- Section for deleting files from server
+            li Use here to delete the audio files on the server.
+              form(action="/deleteFile", method="post", enctype="multipart/form-data")
+                select(name="filename")
+                  option(value = "null") Select a file
+                  each fnames in remoteFileList
+                    option(value = fnames) #{fnames}
+
+                input(type="submit", value="delete")
+
+          
+            //- Synchronize the remote machines and the server
+            li Click here to synchronize the remote devices, this contains the address of Host and the audio files.
+              form(action="/sync", method="post")
+                input(type="submit", value="synchronize") 
+
+        //- right page
+        div(style="display: table-cell; text-align: center; width: 50%")
+            
+          table(align="center")
+            thead 
+              tr
+                td
+                  u Status of Remote Devices
+              tr 
+                td 
+                  form(action="/modifyDevice", method="post")
+                    input(type="text", name="deviceInfo", autocomplete="off", size="25")
+                    input(type="submit", value="update")
+              tr
+                td
+                  //- Check the available of remote devices
+                  form(action="/checkStatus", method="post")
+                    input(type="submit", value="check")
+            tbody
+              - for(var i = 0; i < remote.num; i++) {
+                tr
+                  td
+                    //- Link status Unknown
+                    - if (linkStatus[i] == 0)
+                        p(style="color: #BABABA") #{remote.names[i]}@#{remote.ips[i]}:#{remote.ports[i]}
+
+                    //- Link status fine
+                    - if (linkStatus[i] == 1)
+                      - if (isReady[i])
+                        p(style="color: #00EA0B") #{remote.names[i]}@#{remote.ips[i]}:#{remote.ports[i]} == Ready
+                      - else
+                        p(style="color: #00EA0B") #{remote.names[i]}@#{remote.ips[i]}:#{remote.ports[i]}
+
+                    //- Link status disconnected
+                    - if (linkStatus[i] == 2)
+                      p(style="color: #EA0000") #{remote.names[i]}@#{remote.ips[i]}:#{remote.ports[i]}
+
+                    //- Link has other problems
+                    - if (linkStatus[i] == 3)
+                      p(style="color: #F17800") #{remote.names[i]}@#{remote.ips[i]}:#{remote.ports[i]} (has other problems)
+              - }
+
+    div(style="text-align:center")
+      p 
+        b
+          font(size="5") Execute the code
+
+      form(action="/ready", method="post", enctype="multipart/form-data")
+        p(style="text-align:left") Upload the time stamp file
+          input(type="file", name="timeStampFile")
+        p(style="text-align:left") Choose the start time (if not specified, start from the beginning)
+          input(type="text", name="startTime")
+        
+        input(type="submit", value="Ready")
+
+
+    dev(style="text-align:center")
+      form(action="/start", method="post") 
+        input(type="submit", value="Start", style="height:40px; width:150px; font-size:60")
+
+    //- Prompt message section
+    p(style="color: #FB5550") #{promptMessage}
