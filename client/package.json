@@ -1,5 +1,5 @@
 {
-  "name": "mac",
+  "name": "mac_client",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -14,7 +14,8 @@
     "http-errors": "~1.6.3",
     "jade": "^0.29.0",
     "morgan": "^1.10.0",
-    "python-shell": "^3.0.0"
+    "python-shell": "^3.0.0",
+    "stdio": "^2.1.1"
   },
   "type": "module"
 }

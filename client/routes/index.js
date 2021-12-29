@@ -17,6 +17,12 @@ router.get('/', function(req, res, next) {
 });
 
 
+router.get('/resp', (req, res, next) => {
+  console.log('Getting searching signal from ' + req.ip)
+  res.send(process.env.deviceName)
+});
+
+
 // To download files from remote server
 // Called when synchronization
 router.post('/download', (req, res, next) => {
