@@ -13,7 +13,6 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "^0.29.0",
-    "minimist": "^1.2.5",
     "morgan": "^1.10.0",
     "python-shell": "^3.0.0"
   },

@@ -6,10 +6,11 @@ import logger from 'morgan';
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
+import { getIPAddress } from './util/utility.js';
 
 // The IP and port of this device
-const IP = '192.168.1.100';
-const PORT = '3000';
+process.env.IP = getIPAddress()
+process.env.PORT = '8082'
 
 var app = express();
 const __dirname = path.resolve();
@@ -44,4 +45,4 @@ app.use(function(err, req, res, next) {
 });
 
 export default app;
-export {__dirname, IP, PORT}
+export {__dirname}
