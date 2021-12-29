@@ -8,6 +8,7 @@ import favicon from 'serve-favicon';
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
+import { getIPAddress } from './util/utility.js';
 
 const ConnectionStatus =
 {
@@ -17,8 +18,8 @@ const ConnectionStatus =
   other: 3
 };
 
-const IP = 'localhost';
-const PORT = '8080';
+process.env.IP = getIPAddress()
+process.env.PORT = '8080'
 
 
 var app = express();
@@ -57,4 +58,4 @@ app.use(function(err, req, res, next) {
 });
 
 export default app;
-export {__dirname, ConnectionStatus, IP, PORT};
+export {__dirname, ConnectionStatus};

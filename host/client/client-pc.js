@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { __dirname, ConnectionStatus, IP, PORT } from '../app.js';
+import { __dirname, ConnectionStatus} from '../app.js';
 import axios from 'axios';
 
 /*
@@ -92,8 +92,8 @@ class client {
                     method: 'post',
                     url: addr,
                     data: {
-                        address: IP,
-                        port: PORT,
+                        address: process.env.IP,
+                        port: process.env.PORT,
                         files: this.files
                     }
                 }).then(response => {

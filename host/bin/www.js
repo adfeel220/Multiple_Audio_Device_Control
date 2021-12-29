@@ -5,16 +5,29 @@
  */
 
 import app from '../app.js'
-import {IP, PORT} from '../app.js';
+// import {IP, PORT} from '../app.js';
 import { createServer } from 'http';
 import debug from 'debug';
 debug.debug('mac:server');
 
 /**
+ * Get port arguments
+ * 1st argument: PORT
+ * 2nd argumetn: IP address
+ */
+if (process.argv.length > 2) {
+  let argv = process.argv.slice(2)
+  process.env.PORT = Number(argv[0])
+
+  if (argv.length > 1) {
+    process.env.IP = argv[1]
+  }
+}
+
+/**
  * Get port from environment and store in Express.
  */
-
-var port = normalizePort(process.env.PORT || PORT);
+var port = normalizePort(process.env.PORT);
 app.set('port', port);
 
 /**
@@ -27,11 +40,11 @@ var server = createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port, IP);
+server.listen(port, process.env.IP);
 server.on('error', onError);
 server.on('listening', onListening);
 
-console.log('Service listening on ' + IP + ":" + PORT.toString());
+console.log('Service listening on ' + process.env.IP + ":" + port.toString());
 
 /**
  * Normalize a port into a number, string, or false.
