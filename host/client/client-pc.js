@@ -28,14 +28,14 @@ class client {
 
         for (let i = 0; i < this.devices.num; i++)
         {
-            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString();
+            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + '/resp';
             promises.push(
                 // 'await' is important!!! Need to wait for processes finish before fulfilling all promises.
                 // Otherwise it doesn't work.
                 await axios({
                     method: 'get',
                     url: addr,
-                    timeout: 1000
+                    timeout: 500
                 })
                 .then(response => {
                     if(response.status == 200)

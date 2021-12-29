@@ -19,7 +19,7 @@ const ConnectionStatus =
 };
 
 process.env.IP = getIPAddress()
-process.env.PORT = '8080'
+process.env.PORT = 8080
 
 
 var app = express();

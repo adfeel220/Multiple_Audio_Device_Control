@@ -5,22 +5,34 @@
  */
 
 import app from '../app.js'
-// import {IP, PORT} from '../app.js';
 import { createServer } from 'http';
+import { getopt } from 'stdio';
 import debug from 'debug';
 debug.debug('mac:server');
 
 /**
- * Get port arguments
- * 1st argument: PORT
- * 2nd argumetn: IP address
+ * Get input arguments
  */
-if (process.argv.length > 2) {
-  let argv = process.argv.slice(2)
-  process.env.PORT = Number(argv[0])
-
-  if (argv.length > 1) {
-    process.env.IP = argv[1]
+process.env.deviceName = 'host' + process.env.IP.split('.').pop();
+const argv = getopt({
+  "name": {"key": "n", "description": "The device name assigned by user"},
+  "ip":   {"key": "i", "description": "The assigned IP address to open service"},
+  "port": {"key": "p", "description": "The assigned port of service"}
+});
+let arg_keys = Object.keys(argv);
+// If there's only one argument without indicator, speicified as name
+if (arg_keys.length == 1) {
+  process.env.deviceName = argv.args[0];
+}
+else {
+  for (let i = 0; i < arg_keys.length-1; i++) {
+    let key = arg_keys[i];
+    if (key === "name")
+      process.env.deviceName = argv.args[i]
+    else if (key === "ip")
+      process.env.IP = argv.args[i];
+    else if (key === "port")
+      process.env.PORT = argv.args[i];
   }
 }
 
@@ -44,7 +56,7 @@ server.listen(port, process.env.IP);
 server.on('error', onError);
 server.on('listening', onListening);
 
-console.log('Service listening on ' + process.env.IP + ":" + port.toString());
+console.log('Service listening on ' + process.env.IP + ":" + port.toString() + " as name \"" + process.env.deviceName + "\"");
 
 /**
  * Normalize a port into a number, string, or false.

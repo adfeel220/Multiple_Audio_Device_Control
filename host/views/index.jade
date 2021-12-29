@@ -48,12 +48,17 @@ block content
                 td 
                   form(action="/modifyDevice", method="post")
                     input(type="text", name="deviceInfo", autocomplete="off", size="25")
-                    input(type="submit", value="update")
+                    input(type="submit", value="Update")
               tr
                 td
                   //- Check the available of remote devices
                   form(action="/checkStatus", method="post")
-                    input(type="submit", value="check")
+                    input(type="submit", value="Check")
+              tr
+                td
+                  //- Check the available of remote devices
+                  form(action="/autoScanDevice", method="post")
+                    input(type="submit", value="Auto Scan")
             tbody
               - for(var i = 0; i < remote.num; i++) {
                 tr

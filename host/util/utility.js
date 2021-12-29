@@ -1,4 +1,8 @@
 import { networkInterfaces } from 'os';
+import find from 'local-devices'
+import fs from 'fs'
+import axios from 'axios';
+import {__dirname} from '../app.js'
 
 
 // Convert time string as '{min}:{sec}' into number measured in second
@@ -48,6 +52,50 @@ function getIPAddress() {
     }
 
     return '0.0.0.0';
-  }
+}
 
-export { timeStr2sec, getIPAddress }
+
+async function initRemoteDevices(){
+    const defaultPort = 8085
+    let remoteDevices = {
+        "num": 0,
+        "names": [],
+        "ips": [],
+        "ports": []
+    }
+    let promises = []
+    // Find all local network devices.
+    // find().then(devices => {
+    let devices = await find();
+
+    for (let i = 0; i < devices.length; i++){
+        let dev = devices[i]
+        let url = 'http://' + dev.ip + ':' + defaultPort + '/resp';
+        promises.push(
+            await axios({
+                method: 'get',
+                url: url,
+                timeout: 3000
+            }).then(response => {
+                console.log('Receive response (%d) from client device \"%s@%s\" AKA \"%s\"', response.status, dev.name, dev.ip, response.data);
+
+                remoteDevices.num++;
+                remoteDevices.names.push(response.data)
+                remoteDevices.ips.push(dev.ip)
+                remoteDevices.ports.push(defaultPort)
+
+            }).catch(err => {
+
+            })
+        )
+    }
+
+    Promise.all(promises).then(()=>{
+        fs.writeFileSync(__dirname + '/remote.json', JSON.stringify(remoteDevices));
+        return remoteDevices.nums
+    })
+
+}
+
+
+export { timeStr2sec, getIPAddress, initRemoteDevices }

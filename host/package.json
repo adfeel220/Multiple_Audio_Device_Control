@@ -1,11 +1,10 @@
 {
-  "name": "mac",
+  "name": "mac_host",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www.js",
-    "nodemon": "nodemon ./bin/www.js",
-    "test": "node ./test.js"
+    "nodemon": "nodemon ./bin/www.js"
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -15,8 +14,10 @@
     "express-fileupload": "^1.2.1",
     "http-errors": "~1.6.3",
     "jade": "^0.29.0",
+    "local-devices": "^3.0.0",
     "morgan": "^1.10.0",
-    "serve-favicon": "^2.5.0"
+    "serve-favicon": "^2.5.0",
+    "stdio": "^2.1.1"
   },
   "type": "module",
   "devDependencies": {

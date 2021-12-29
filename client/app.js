@@ -10,7 +10,7 @@ import { getIPAddress } from './util/utility.js';
 
 // The IP and port of this device
 process.env.IP = getIPAddress()
-process.env.PORT = '8082'
+process.env.PORT = 8085
 
 var app = express();
 const __dirname = path.resolve();

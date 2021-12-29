@@ -3,7 +3,7 @@ import { __dirname, ConnectionStatus } from '../app.js';
 import fs, { link } from 'fs';
 import client from '../client/client-pc.js';
 import parseTimestamp from '../util/timestamp.js';
-import { timeStr2sec } from '../util/utility.js';
+import { timeStr2sec, initRemoteDevices } from '../util/utility.js';
 
 
 // INIT
@@ -211,6 +211,16 @@ router.post('/checkStatus', function(req, res) {
   });
 
 })
+
+/**
+ * Automatically scan all devices within the same local network
+ */
+router.post('/autoScanDevice', (req, res) => {
+  initRemoteDevices().then((num_devices)=>{
+    linkStatus = Array(num_devices).fill(ConnectionStatus.fine)
+    res.redirect('back')
+  });
+});
 
 
 /**
