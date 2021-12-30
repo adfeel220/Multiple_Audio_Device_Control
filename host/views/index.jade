@@ -57,7 +57,7 @@ block content
               tr
                 td
                   //- Check the available of remote devices
-                  form(action="/autoScanDevice", method="post")
+                  form(action="/autoScanDevice", method="get")
                     input(type="submit", value="Auto Scan")
             tbody
               - for(var i = 0; i < remote.num; i++) {

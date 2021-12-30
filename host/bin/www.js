@@ -7,6 +7,7 @@
 import app from '../app.js'
 import { createServer } from 'http';
 import { getopt } from 'stdio';
+import { saveServerStatus } from '../util/utility.js';
 import debug from 'debug';
 debug.debug('mac:server');
 
@@ -57,6 +58,7 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 console.log('Service listening on ' + process.env.IP + ":" + port.toString() + " as name \"" + process.env.deviceName + "\"");
+saveServerStatus();
 
 /**
  * Normalize a port into a number, string, or false.

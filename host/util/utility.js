@@ -1,6 +1,7 @@
 import { networkInterfaces } from 'os';
 import find from 'local-devices'
 import fs from 'fs'
+import path from 'path';
 import axios from 'axios';
 import {__dirname} from '../app.js'
 
@@ -64,20 +65,18 @@ async function initRemoteDevices(){
         "ports": []
     }
     let promises = []
-    // Find all local network devices.
-    // find().then(devices => {
     let devices = await find();
 
     for (let i = 0; i < devices.length; i++){
         let dev = devices[i]
-        let url = 'http://' + dev.ip + ':' + defaultPort + '/resp';
+        let url = 'http://' + dev.ip + ':' + defaultPort + '/resp/' + process.env.PORT;
         promises.push(
-            await axios({
+            axios({
                 method: 'get',
                 url: url,
                 timeout: 3000
             }).then(response => {
-                console.log('Receive response (%d) from client device \"%s@%s\" AKA \"%s\"', response.status, dev.name, dev.ip, response.data);
+                console.log('Receive response (%d) from client device \"%s\" AKA \"%s\"', response.status, dev.ip, response.data);
 
                 remoteDevices.num++;
                 remoteDevices.names.push(response.data)
@@ -90,12 +89,21 @@ async function initRemoteDevices(){
         )
     }
 
-    Promise.all(promises).then(()=>{
-        fs.writeFileSync(__dirname + '/remote.json', JSON.stringify(remoteDevices));
-        return remoteDevices.nums
-    })
+    await Promise.all(promises);
+    fs.writeFileSync(path.join(__dirname, 'remote.json'), JSON.stringify(remoteDevices));
+    return remoteDevices;
 
 }
 
 
-export { timeStr2sec, getIPAddress, initRemoteDevices }
+function saveServerStatus(){
+    let serverStatus = {
+        "name": process.env.deviceName,
+        "address": process.env.IP,
+        "port": process.env.PORT
+    };
+    fs.writeFileSync(path.join(__dirname, 'onService.json'), JSON.stringify(serverStatus));
+}
+
+
+export { timeStr2sec, getIPAddress, initRemoteDevices, saveServerStatus }

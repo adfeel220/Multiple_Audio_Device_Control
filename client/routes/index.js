@@ -17,9 +17,10 @@ router.get('/', function(req, res, next) {
 });
 
 
-router.get('/resp', (req, res, next) => {
-  console.log('Getting searching signal from ' + req.ip)
-  res.send(process.env.deviceName)
+router.get('/resp/:port_num', (req, res, next) => {
+  console.log('Getting searching signal from ' + req.ip + ':' + req.params.port_num);
+  fs.writeFileSync(path.join(__dirname, 'controller.json'), JSON.stringify({"address": req.ip, "port": req.params.port_num}));
+  res.send(process.env.deviceName);
 });
 
 

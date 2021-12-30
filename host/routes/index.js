@@ -215,10 +215,11 @@ router.post('/checkStatus', function(req, res) {
 /**
  * Automatically scan all devices within the same local network
  */
-router.post('/autoScanDevice', (req, res) => {
-  initRemoteDevices().then((num_devices)=>{
-    linkStatus = Array(num_devices).fill(ConnectionStatus.fine)
-    res.redirect('back')
+router.get('/autoScanDevice', (req, res, next) => {
+  console.log('Auto Scan on local devices.')
+  initRemoteDevices().then(remoteDevices=>{
+    linkStatus = Array(remoteDevices.num).fill(ConnectionStatus.fine);
+    res.send(remoteDevices);
   });
 });
 
