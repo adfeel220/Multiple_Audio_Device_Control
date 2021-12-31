@@ -12,4 +12,6 @@ function devices = scanDevices()
 	Port = data.ports;
 
 	devices = table(DeviceName, Address, Port);
+
+	servC.devices = devices;
 end

@@ -42,22 +42,16 @@ function is_running = startServer(directory, address, port, hostName)
 
    % Subfunction to check if the server is already running
    function is_run = isServerRunning(try_solve)
-      if ismac || isunix
-         [status, cmdout] = system(sprintf('echo $(lsof -ti:%s)', servC.port));
-      elseif ispc
-         [status, cmdout] = system(sprintf('netstat -ano | findstr :%s', servC.port));
-      end
+      [is_run, pid] = isServerOn();
       % No such process found on port
-      if isempty(cmdout(1:end-1)) 
+      if ~is_run
          if try_solve
             fprintf('Not able to start server on port %s. Possibly due to\n1) Directory error. Please check if the directory is correct.\n2) Include PATH error. Try to include the path of npm using following command ''which npm'' in your normal terminal and paste the output as NPM_PATH and call\naddPath(''NPM_PATH'')\nIn Matlab.\n', servC.port);
          else
             fprintf('Not able to start server on port %s. Automatically retry...\n', servC.port);
          end
-         is_run = false;
       else
-         fprintf('Server started successfully on port %s with PID %s\n', servC.port, cmdout(1:end-1));
-         is_run = true;
+         fprintf('Server started successfully on port %s with PID %s\n', servC.port, pid);
       end
    end
 

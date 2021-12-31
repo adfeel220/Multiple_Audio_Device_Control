@@ -10,11 +10,13 @@ class client {
     constructor() {
         this.devices = {};
         this.files = {};
+        this.play_ignore = [];
     }
 
     refresh() {
         this.devices = JSON.parse(fs.readFileSync(__dirname + '/remote.json'));
         this.files = JSON.parse(fs.readFileSync(__dirname + '/fileArxiv.json'));
+        this.play_ignore = [];
     }
 
     // Checking the connection status of remote devices
@@ -124,15 +126,12 @@ class client {
         for (let i = 0; i < this.devices.num; i++) {
             console.log('Request remote %s to download file \'%s\'', this.devices.names[i], fname);
 
-            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/download";
+            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/download/" + fname;
 
             promises.push(
                 axios({
-                    method: 'post',
-                    url: addr,
-                    data: {
-                        filename: fname
-                    }
+                    method: 'get',
+                    url: addr
                 }).then(response => {
                     console.log('Receiving response: %s', response)
                 }).catch(err => {
@@ -145,6 +144,7 @@ class client {
 
 
     async sendTimestamp(fullEvents, startTime) {
+        this.play_ignore = [];  // initialize the ignore list for this round
         let agentEvents = [];   // going to be a 2d array, first coordinate is the device; the second stores the events
 
         // Initialize each coordinate (represting devices) with an empty array
@@ -168,6 +168,12 @@ class client {
             console.log('Sending time stamps to remote device \'%s\' @%s', this.devices.names[i], this.devices.ips[i]);
 
             let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/timeStamp";
+
+            // ignore the agent if it doesn't have any task
+            if (agentEvents[i].length < 1){
+                this.play_ignore.push(i);
+                continue;
+            }
 
             promises.push(
                 axios({
@@ -203,6 +209,10 @@ class client {
 
             let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/play";
 
+            // ignore agents having no tasks this round
+            if (this.play_ignore.includes(i))
+                continue;
+
             promises.push(
                 axios({
                     method: 'get',
@@ -214,7 +224,10 @@ class client {
                 })
             )
         }
-        Promise.all(promises);
+        Promise.all(promises).then(() => {
+            this.play_ignore = []
+        });
+
     }
 
 }

@@ -26,18 +26,18 @@ router.get('/resp/:port_num', (req, res, next) => {
 
 // To download files from remote server
 // Called when synchronization
-router.post('/download', (req, res, next) => {
+router.get('/download/:filename', (req, res, next) => {
 
   // Obtain the remote host address
   let addr = JSON.parse(fs.readFileSync('./controller.json', 'utf-8'));
 
   // Obtain the file name to download
-  let filename = req.body.filename;
+  let filename = req.params.filename;
 
   console.log('----- Download File -----');
   
   // Create the url of request
-  let url = 'http://' + addr.address + ':' + addr.port + '/download/' + req.body.filename;
+  let url = 'http://' + addr.address + ':' + addr.port + '/download/' + filename;
 
   // Create the promise to access web services
   axios({
@@ -45,13 +45,13 @@ router.post('/download', (req, res, next) => {
     url: url,
     responseType: 'stream'
   }).then( response => {
-    console.log('Receive response (%d) from server when downloading %s', response.status, req.body.filename);
+    console.log('Receive response (%d) from server when downloading %s', response.status, filename);
 
     // Using pipe streams to download, otherwise the file contents may be damaged
     response.data.pipe(fs.createWriteStream(filePath + filename));
     
   }).catch( err => {
-    console.log('Catching error when downloading %s\n%s', req.body.filename, err);
+    console.log('Catching error when downloading %s\n%s', filename, err);
   }).finally( () => {
     console.log('-------------------------');
   })
