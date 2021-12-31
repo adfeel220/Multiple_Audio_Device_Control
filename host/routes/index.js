@@ -179,18 +179,17 @@ router.post('/deleteFile', function(req, res) {
  * Synchronization
  * Update the address and port stored at remote devices
  */
-router.post('/sync', function(req, res) {
+router.get('/sync', function(req, res) {
+  // Update the status of server-side client
+  serClient.refresh();
   // Inform the remote devices of the current host address
   serClient.syncAddrFile();
-
-  console.log('######## Synchronization ########');
 
   // request all remote devices to downlaod all files specified in fileArxiv.json
   serClient.requestDownload_all().then(response => {
     pmm = 'Synchronization complete.';
   }).finally(() => {
     
-    console.log('#################################');
     res.redirect('back');
   });
 

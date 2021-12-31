@@ -1,10 +1,11 @@
-function serviceConfig()
+function servC = serviceConfig()
 
 global servC;
 
 % Assign default value
 servC.port = '8080';
-
+servC.default_audio_name = '__instant.wav';
+servC.default_tms_name = '__instant.txt';
 
 servC.directory = dir('../host').folder;
 
