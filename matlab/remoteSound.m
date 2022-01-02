@@ -10,7 +10,7 @@ function remoteSound(target, device, volume, Fs)
 %     (1) A string indicates the device name
 %     (2) An index indicates the device in the table of servC.devices
 % volume: number between 0-100 to indicate the volume, no decimal values allowed. default being 100 [%]
-% Fs: Sampling frequency. default being 8192 [Hz]
+% Fs: Sampling frequency. default being 8192 [Hz].
 
 	addpath('./server');
 	global servC;
@@ -38,30 +38,43 @@ function remoteSound(target, device, volume, Fs)
 		if ~isfile(target)
 			error('No such audio file ''%s''.', target);
 		end
+		% Get full path
+		target = toAbsPath(target);
 		% Parse only file name without other path informations
 		dirs = split(target, '/');
 		file_name = dirs{end};
+
+		% Copy the file to host
+		copyfile(target, fullfile(servC.directory, 'resources'));
 	end
+
+
+	% Update the arxiv log file
+	updateArxiv();
 
 
 	%% Request remote device to download the file
 	% Obtain the network information of the remote device
 	device_index = strcmp(servC.devices.DeviceName, device_name);
 	device_info = servC.devices(device_index, :);
-	% Generate the corresponding api request
-	client_uri = matlab.net.URI(sprintf('http://%s:%s/', device_info.Address, device_info.Port));
+	% Generate the corresponding request to ask the client download audio file
+	client_uri = matlab.net.URI(sprintf('http://%s:%s/', device_info.Address, string(device_info.Port)));
 	service_api = sprintf('download/%s', file_name);
 
+	% Send the request to ask the client download targeted audio file
 	res = sendHTTPRequest(client_uri, 'GET', service_api);
-	if res.StatusCode ~= matlab.net.http.StatusCode.OK
-		error('Problems encountered when sending ''%s'' to remote device ''%s''. Get status ''%s''.', file_name, device_name, res.StatusCode);
-	end
 
 	% Generate a temporary time stamp for instant play
-	generateTimeStampFile();
+	tms_full_path = generateTimeStampFile();
 
-	
+	% Send ready signal for processing
+	ready_res = sendHTTPRequest(servC.uri, 'POST', 'ready', tms_full_path);
+	% Send play signal once ready
+	play_res = sendHTTPRequest(servC.uri, 'GET', 'start');
 
+	% ---------------- %
+	% End of execution
+	% ---------------- %
 
 	function dname = getDeviceName()
 		if isa(device, 'char') || isa(device, 'string')
@@ -76,10 +89,34 @@ function remoteSound(target, device, volume, Fs)
 		end
 	end
 
-	function generateTimeStampFile()
+	function abs_path = toAbsPath(path_str)
+		dirc = dir(path_str);
+		if dirc.isdir
+			abs_path = dirc.folder;
+		else
+			abs_path = fullfile(dirc.folder, dirc.name);
+		end
+	end
+
+	function fullpath = generateTimeStampFile()
 		fullpath = fullfile(servC.directory, 'resources', servC.default_tms_name);
 		time_stamp = sprintf('new 0:00 %s %s %d\n', device_name, file_name, volume);
 		writeFile(fullpath, time_stamp);
+	end
+
+	function updateArxiv()
+		% Read from the current arxiv log
+		arxiv_path = fullfile(servC.directory, 'fileArxiv.json');
+		arxiv = readFile(arxiv_path);
+
+		% add info if not exist
+		if ~ismember(file_name, string(arxiv.fileNames))
+			arxiv.fileNumber = arxiv.fileNumber +1;
+			arxiv.fileNames{end+1} = file_name;
+		end
+
+		% write new fileArxiv
+		writeFile(arxiv_path, arxiv);
 	end
 
 end % remoteSound

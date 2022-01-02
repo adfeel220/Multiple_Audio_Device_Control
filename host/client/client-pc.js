@@ -133,7 +133,7 @@ class client {
                     method: 'get',
                     url: addr
                 }).then(response => {
-                    console.log('Receiving response: %s', response)
+                    console.log('Receiving response: %d %s when requesting remote %s to download file \'%s\'', response.status, response.statusText, this.devices.names[i], fname);
                 }).catch(err => {
                     console.log('Fail to request download for \'%s\', getting error:\n%s', this.devices.names[i], err)
                 })
@@ -165,15 +165,16 @@ class client {
         let isReady  = [];
 
         for (let i = 0; i < this.devices.num; i++) {
-            console.log('Sending time stamps to remote device \'%s\' @%s', this.devices.names[i], this.devices.ips[i]);
-
-            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/timeStamp";
-
             // ignore the agent if it doesn't have any task
             if (agentEvents[i].length < 1){
                 this.play_ignore.push(i);
                 continue;
             }
+
+            console.log('Sending time stamps to remote device \'%s\' @%s', this.devices.names[i], this.devices.ips[i]);
+
+            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/timeStamp";
+
 
             promises.push(
                 axios({
@@ -184,7 +185,7 @@ class client {
                         events: JSON.stringify(agentEvents[i])
                     }
                 }).then(response => {
-                    console.log('Receiving response: \'%d\' from %s', response.status, this.devices.names[i]);
+                    console.log('Receiving response: \'%d\' from %s when demanding to load.', response.status, this.devices.names[i]);
                     
                     // Store the ready information as true/false
                     isReady.push(response.status == 200);
@@ -205,20 +206,20 @@ class client {
         let promises = [];
 
         for (let i = 0; i < this.devices.num; i++) {
-            console.log('Request remote %s to stat playing.', this.devices.names[i]);
-
-            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/play";
-
             // ignore agents having no tasks this round
             if (this.play_ignore.includes(i))
                 continue;
+
+            console.log('Request remote %s to stat playing.', this.devices.names[i]);
+
+            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/play";
 
             promises.push(
                 axios({
                     method: 'get',
                     url: addr
                 }).then(response => {
-                    console.log('Receiving response: %s', response)
+                    console.log('Receiving response: \'%d\' from %s when demanding playing.', response.status, this.devices.names[i]);
                 }).catch(err => {
                     console.log('Fail to request playing for \'%s\', getting error:\n%s', this.devices.names[i], err)
                 })

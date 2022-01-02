@@ -4,7 +4,7 @@ function devices = scanDevices()
 	global servC;
 
 	% Request from existing service to scan available devices
-	response = sendHTTPRequest(servC.uri, 'get', 'autoScanDevice');
+	response = sendHTTPRequest(servC.uri, 'GET', 'autoScanDevice');
 	data = response.Body.Data;
 
 	DeviceName = convertCharsToStrings(data.names);
