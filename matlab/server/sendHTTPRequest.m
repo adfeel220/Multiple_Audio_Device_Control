@@ -1,38 +1,41 @@
-function response = sendHTTPRequest(uri, method, api, data)
+function response = sendHTTPRequest(uri, method, api, file_dir)
+% Send a HTTP request which demands from specific API.
 
+% Params
+% ------------
 % uri: matlab.net.URI
-% request: matlab.net.http.RequestMessage
-% method: string 'GET' or 'POST'
+% method: string 'GET' or 'POST'. capital letter insensitive.
 % api: string
-% data: struct to be sent in POST
+% file_dir: string of file directory to be uploaded in POST
+
+% Returns
+% ----------
 % response: matlab.net.http.ResponseMessage
 
-request = matlab.net.http.RequestMessage(upper(method));
-if strcmp(request.Method, 'POST')
-    request.Body = data
+% I don't know why but this can prevent some naming errors...
+if strcmp(upper(method), 'GET')
+    request = matlab.net.http.RequestMessage(upper(method));
+elseif strcmp(upper(method), 'POST')
+    file_provide = matlab.net.http.io.FileProvider(file_dir);
+    content = matlab.net.http.io.MultipartFormProvider("timeStampFile", file_provide, "startTime", "");
+    request = matlab.net.http.RequestMessage(upper(method), [], content);
 end
 if nargin > 2
     uri.Path = api;
 end
 
-% matlab.net.http.HTTPOptions persists across requests to reuse  previous
-% Credentials in it for subsequent authentications
-persistent options 
 
 % infos is a containers.Map object where: 
 %    key is uri.Host; 
 %    value is "info" struct containing:
 %        cookies: vector of matlab.net.http.Cookie or empty
 %        uri: target matlab.net.URI if redirect, or empty
-persistent infos
 
-if isempty(options)
-    options = matlab.net.http.HTTPOptions('ConnectTimeout',20);
-end
+% Set timeout to 5 secs, we only operate in LAN it should be quick
+options = matlab.net.http.HTTPOptions('ConnectTimeout',5);
+infos = containers.Map;
 
-if isempty(infos)
-    infos = containers.Map;
-end
+
 host = string(uri.Host); % get Host from URI
 try
     % get info struct for host in map

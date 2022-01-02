@@ -20,15 +20,16 @@ end
 
 
 % initialize global configurations
-global servC;
-if ~isempty(servC)
-	serviceConfig();
-end
+global servC
+servC = serviceConfig();
+
 servC.directory = host_dir;
 
+% Check if there's any already opened server
+[isServerExist, pid] = isServerOn();
 
 % Search for a server
-if isServerOn()
+if isServerExist
 	devices = scanDevices();
 	fprintf('Server found on %s:%s. %d connected devices found.', servC.address, servC.port, size(devices, 1));
 % If fails, most possible it's because there's no server, open one via Matlab
@@ -47,20 +48,19 @@ else
 	fprintf('Service establish successfully on %s:%s', servC.address, servC.port);
 end
 
+[isServerExist, pid] = isServerOn();
 % Initialize the initial state of all connected devices
-if isServerOn()
-	resp = sendHTTPRequest(servC.uri, 'GET', '/sync');
+if isServerExist
+	resp = sendHTTPRequest(servC.uri, 'GET', 'sync');
 end
 
 
 % update the current server status
 function updateStatus()
+	% Read from the service log file of host server
 	fname = fullfile(servC.directory, 'onService.json');
-	fid = fopen(fname);
-	raw = fread(fid,inf);
-	str = char(raw');
-	fclose(fid);
-	status = jsondecode(str);
+	status = readFile(fname);
+
 	% Assign the parsed message
 	servC.name = status.name;
 	servC.address = status.address;

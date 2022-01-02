@@ -1,11 +1,13 @@
 function servC = serviceConfig()
+% Generate the global configuration settings
 
+addpath('./server');
 global servC;
 
 % Assign default value
 servC.port = '8080';
-servC.default_audio_name = '__instant.wav';
-servC.default_tms_name = '__instant.txt';
+servC.default_audio_name = 'INSTANT.wav';
+servC.default_tms_name = 'INSTANT.txt';
 
 servC.directory = dir('../host').folder;
 
@@ -24,11 +26,8 @@ function is_read = readStatus()
 		is_read = false;
 		return;
 	end
-	fid = fopen(fname);
-	raw = fread(fid,inf);
-	str = char(raw');
-	fclose(fid);
-	status = jsondecode(str);
+	
+	status = readFile(fname);
 
 	% Assign the parsed message
 	servC.name = status.name;

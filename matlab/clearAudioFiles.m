@@ -26,9 +26,9 @@ function clearFiles()
 
 	% 
 	if isServerOn()
-		resp = sendHTTPRequest(servC.uri, 'GET', '/sync');
+		resp = sendHTTPRequest(servC.uri, 'GET', 'sync');
 		if resp.StatusCode == matlab.net.http.StatusCode.OK
-			fprintf('Simutaneously delete files on connected remote devices\n');
+			fprintf('(%s) Simutaneously delete files on connected remote devices\n', resp.StatusLine);
 		end
 	end
 

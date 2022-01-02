@@ -78,6 +78,8 @@ router.get('/download/:filename', (req, res, next) => {
 
   // Update the json file
   fs.writeFileSync(__dirname + '/fileArxiv.json', JSON.stringify(fileList));
+
+  res.sendStatus(200);
   
 });
 
@@ -126,6 +128,8 @@ router.post('/sync', (req, res, next) => {
 
   // Update the fileArxiv file to maintain file management
   fs.writeFileSync(__dirname + '/fileArxiv.json', JSON.stringify(fileList));
+
+  res.sendStatus(200);
 });
 
 
@@ -167,6 +171,8 @@ router.post('/deleteFile', (req, res, next) => {
   // Save the updated status to fileArxiv.json
   fs.writeFileSync(fileListDir, JSON.stringify(fileList));
 
+  res.sendStatus(200);
+
   console.log('-----------------');
 })
 
@@ -191,6 +197,8 @@ router.post('/timeStamp', (req, res) => {
 router.get('/play', (req, res) => {
   // Command the audio player module to start playing
   player.play();
+
+  res.sendStatus(200);
 })
 
 

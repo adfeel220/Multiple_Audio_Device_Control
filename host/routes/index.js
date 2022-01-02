@@ -18,6 +18,10 @@ let deviceReady = [];
 /**
  * Get home page for display
  */
+router.post('/', function(req, res, next) {
+  next();
+});
+
 router.get('/', function(req, res, next) {
   // INIT
   // obtain the current existing files collection
@@ -180,6 +184,7 @@ router.post('/deleteFile', function(req, res) {
  * Update the address and port stored at remote devices
  */
 router.get('/sync', function(req, res) {
+  console.log('Synchronisation request received.');
   // Update the status of server-side client
   serClient.refresh();
   // Inform the remote devices of the current host address
@@ -388,7 +393,7 @@ router.post('/ready', (req, res) => {
 
 
 // After ready, start the program
-router.post('/start', (req, res) => {
+router.get('/start', (req, res) => {
   // Using the audioPlayer function to play
   serClient.startPlaying();
 
