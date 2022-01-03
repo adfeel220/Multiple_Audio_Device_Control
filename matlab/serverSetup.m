@@ -11,19 +11,22 @@ function devices = serverSetup(host_dir)
 % ----------
 % devices: a table of all connected devices with name, ip address, and port.
 
+current_path = dir([mfilename('fullpath'),'.m']).folder;
+
 % Initialisation
-addpath('./server');
+addpath(fullfile(current_path, 'server'));
+
 % if no directory assigned, assign default from parent
 if nargin == 0
-	host_dir = dir('../host').folder;
+	host_dir = dir(fullfile(current_path, '../host')).folder;
 end
 
 
 % initialize global configurations
 global servC
+servC.directory = host_dir;
 servC = serviceConfig();
 
-servC.directory = host_dir;
 
 % Check if there's any already opened server
 [isServerExist, pid] = isServerOn();

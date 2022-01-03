@@ -1,6 +1,9 @@
 function clearFiles()
+% Clear all the files stored in 'host/resources'
 
-	addpath('./server');
+	current_path = dir([mfilename('fullpath'),'.m']).folder;
+
+	addpath(fullfile(current_path, 'server'));
 
 	global servC;
 

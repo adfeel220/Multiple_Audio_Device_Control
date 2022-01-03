@@ -47,7 +47,7 @@ function timeStampStart(time_stamp_path, audio_files)
 	% Send play signal once ready
 	play_res = sendHTTPRequest(servC.uri, 'GET', 'start');
 
-	fprintf('Starting playing assigned audio events.\n');
+	fprintf('Start playing assigned audio events.\n');
 
 
 
@@ -64,7 +64,7 @@ function timeStampStart(time_stamp_path, audio_files)
 		end
 	end
 
-	function status = uploadFileToServer(file_path)
+	function uploadFileToServer(file_path)
 	% Upload any file to host server for further use
 	% 
 	% Params
@@ -73,7 +73,9 @@ function timeStampStart(time_stamp_path, audio_files)
 	%            Can be either absolute or relative path.
 
 		server_dir = fullfile(servC.directory, 'resources');
-		status = copyfile(file_path, server_dir);
+		if ~strcmp(dir(file_path).folder, server_dir)
+			copyfile(target, server_dir);
+		end
 		
 	end % uploadFileToServer
 

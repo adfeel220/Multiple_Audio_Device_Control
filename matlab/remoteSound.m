@@ -12,7 +12,10 @@ function remoteSound(target, device, volume, Fs)
 % volume: number between 0-100 to indicate the volume, no decimal values allowed. default being 100 [%]
 % Fs: Sampling frequency. default being 8192 [Hz].
 
-	addpath('./server');
+	current_path = dir([mfilename('fullpath'),'.m']).folder;
+
+	addpath(fullfile(current_path, 'server'));
+
 	global servC;
 
 	% Set default Fs to 8192 Hz as sound() does
@@ -20,6 +23,14 @@ function remoteSound(target, device, volume, Fs)
 		volume = 100;
 	end
 	if nargin < 4
+		Fs = 8192;
+	end
+
+	% Try empty as default value
+	if isempty(volume)
+		volume = 100;
+	end
+	if isempty(Fs)
 		Fs = 8192;
 	end
 
@@ -44,8 +55,10 @@ function remoteSound(target, device, volume, Fs)
 		dirs = split(target, '/');
 		file_name = dirs{end};
 
-		% Copy the file to host
-		copyfile(target, fullfile(servC.directory, 'resources'));
+		% Copy the file to host, ignore if already exist
+		if ~strcmp(dir(target).folder, fullfile(servC.directory, 'resources'))
+			copyfile(target, fullfile(servC.directory, 'resources'));
+		end
 	end
 
 
