@@ -155,8 +155,11 @@ class client {
         // assign the events according to their respective devices
         fullEvents.forEach(event => {
             let deviceIndex = this.devices.names.indexOf(event.deviceName);
-
-            agentEvents[deviceIndex].push(event);
+            // only add event when there's a valid device, ignore invalid name
+            if (deviceIndex >= 0)
+                agentEvents[deviceIndex].push(event);
+            else
+                console.log('No such device named %s', event.deviceName);
         });
 
 

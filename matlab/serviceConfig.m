@@ -1,7 +1,10 @@
 function servC = serviceConfig()
 % Generate the global configuration settings
 
-addpath('./server');
+current_path = dir([mfilename('fullpath'),'.m']).folder;
+
+addpath(fullfile(current_path, 'server'));
+
 global servC;
 
 % Assign default value
@@ -9,14 +12,17 @@ servC.port = '8080';
 servC.default_audio_name = 'INSTANT.wav';
 servC.default_tms_name = 'INSTANT.txt';
 
-servC.directory = dir('../host').folder;
-
+if ~isfield(servC, 'directory')
+	servC.directory = dir(fullfile(current_path, '../host')).folder;
+end
 
 % Try to read servser status from server log file
 is_read = readStatus();
 
 if is_read
 	servC.uri = matlab.net.URI(sprintf('http://%s:%s/', servC.address, servC.port));
+else
+	error('The directory for host ''%s'' is incorrect.', servC.directory);
 end
 
 
