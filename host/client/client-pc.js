@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { __dirname, ConnectionStatus} from '../app.js';
 import axios from 'axios';
+import path from 'path';
 
 /*
  * A client module to allow web host to send requests to the remote devices
@@ -17,6 +18,17 @@ class client {
         this.devices = JSON.parse(fs.readFileSync(__dirname + '/remote.json'));
         this.files = JSON.parse(fs.readFileSync(__dirname + '/fileArxiv.json'));
         this.play_ignore = [];
+
+        // container size check
+        if (this.devices.num !== this.devices.ips.length || this.devices.num !== this.devices.ports.length) {
+            if (this.devices.ips.length == this.devices.ports.length)
+                this.devices.num = this.devices.ips.length;
+            else
+                throw new Error('The device status stored in \'remote.json\' has inconsistent length.');
+        }
+
+        if (this.files.fileNumber !== this.files.fileNames.length)
+            this.files.fileNumber = this.files.fileNames.length;
     }
 
     // Checking the connection status of remote devices
@@ -24,20 +36,21 @@ class client {
     async checkStatus() {
         let status = [];
         let promises = [];
+
         for (let i = 0; i< this.devices.num; i++){
             status.push(ConnectionStatus.unknown);
         }
 
         for (let i = 0; i < this.devices.num; i++)
         {
-            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + '/resp';
+            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString();
             promises.push(
                 // 'await' is important!!! Need to wait for processes finish before fulfilling all promises.
                 // Otherwise it doesn't work.
                 await axios({
                     method: 'get',
                     url: addr,
-                    timeout: 500
+                    timeout: 500    // only waits 0.5 secs because in LAN it should be fast
                 })
                 .then(response => {
                     if(response.status == 200)
