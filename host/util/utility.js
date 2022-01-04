@@ -76,7 +76,7 @@ async function initRemoteDevices(){
                 url: url,
                 timeout: 3000
             }).then(response => {
-                console.log('Receive response (%d) from client device \"%s\" AKA \"%s\"', response.status, dev.ip, response.data);
+                console.log('Receive response (%d) from client device \"%s\" with name \"%s\"', response.status, dev.ip, response.data);
 
                 remoteDevices.num++;
                 remoteDevices.names.push(response.data)
@@ -90,6 +90,16 @@ async function initRemoteDevices(){
     }
 
     await Promise.all(promises);
+
+    // container size check
+    if (remoteDevices.num !== remoteDevices.ips.length || remoteDevices.num !== remoteDevices.ports.length || remoteDevices.num !== remoteDevices.names.length){
+        if (remoteDevices.ips.length == remoteDevices.ports.length && remoteDevices.ports.length == remoteDevices.names.length)
+            remoteDevices.num = remoteDevices.ips.length;
+        else
+            throw new Warning('The device status stored in \'remote.json\' has unmatched length.');
+    }
+
+    // export the new data to file
     fs.writeFileSync(path.join(__dirname, 'remote.json'), JSON.stringify(remoteDevices));
     return remoteDevices;
 

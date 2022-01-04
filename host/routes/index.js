@@ -222,6 +222,7 @@ router.post('/checkStatus', function(req, res) {
 router.get('/autoScanDevice', (req, res, next) => {
   console.log('Auto Scan on local devices.')
   initRemoteDevices().then(remoteDevices=>{
+    // Update displayed link status
     linkStatus = Array(remoteDevices.num).fill(ConnectionStatus.fine);
     res.send(remoteDevices);
   });
