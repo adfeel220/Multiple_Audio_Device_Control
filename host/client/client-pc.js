@@ -43,7 +43,16 @@ class client {
 
         for (let i = 0; i < this.devices.num; i++)
         {
-            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString();
+            // Solve problem that on Windows system the port may not properly loaded
+            let port_num;
+            try {
+                port_num = this.devices.ports[i].toString();
+            } catch (error) {
+                port_num = "8085";
+            }
+
+            let addr = "http://" + this.devices.ips[i] + ":" + port_num;
+
             promises.push(
                 // 'await' is important!!! Need to wait for processes finish before fulfilling all promises.
                 // Otherwise it doesn't work.
