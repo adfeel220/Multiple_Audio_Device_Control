@@ -52,6 +52,7 @@ class client {
             }
 
             let addr = "http://" + this.devices.ips[i] + ":" + port_num;
+
             promises.push(
                 // 'await' is important!!! Need to wait for processes finish before fulfilling all promises.
                 // Otherwise it doesn't work.
