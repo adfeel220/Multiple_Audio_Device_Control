@@ -116,4 +116,27 @@ function saveServerStatus(){
 }
 
 
-export { timeStr2sec, getIPAddress, initRemoteDevices, saveServerStatus }
+function updateArxiv(){
+    console.log('Update current archive catalog.');
+
+    let fileArxiv = {
+        "fileNumber":0,
+        "fileNames":[]
+    };
+
+    let files = fs.readdirSync(path.join(__dirname, 'resources'));
+    for (let i = 0; i < files.length; i++){
+        let filename = files[i];
+        // Select only the .mp3 and .wav files
+        if (path.extname(filename) == ".mp3" || path.extname(filename) == ".wav") {
+            fileArxiv.fileNumber++;
+            fileArxiv.fileNames.push(filename);
+        }
+    }
+
+    // Save the updated status to fileArxiv.json
+    fs.writeFileSync(path.join(__dirname, 'fileArxiv.json'), JSON.stringify(fileArxiv));
+}
+
+
+export { timeStr2sec, getIPAddress, initRemoteDevices, saveServerStatus, updateArxiv }

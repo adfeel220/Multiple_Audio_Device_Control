@@ -3,7 +3,7 @@ import { __dirname, ConnectionStatus } from '../app.js';
 import fs, { link } from 'fs';
 import client from '../client/client-pc.js';
 import parseTimestamp from '../util/timestamp.js';
-import { timeStr2sec, initRemoteDevices } from '../util/utility.js';
+import { timeStr2sec, initRemoteDevices, updateArxiv } from '../util/utility.js';
 
 
 // INIT
@@ -185,6 +185,10 @@ router.post('/deleteFile', function(req, res) {
  */
 router.get('/sync', function(req, res) {
   console.log('Synchronisation request received.');
+
+  // Update the local host arxiv
+  updateArxiv();
+
   // Update the status of server-side client
   serClient.refresh();
   // Inform the remote devices of the current host address
