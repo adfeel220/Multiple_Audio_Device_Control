@@ -8,32 +8,36 @@ function timeStampStart(time_stamp_path, audio_files)
 
 	global servC;
 
-	%% Update all the audio files
-	fprintf('Processing audio files...\n');
-	% Read from the current arxiv log
-	arxiv_path = fullfile(servC.directory, 'fileArxiv.json');
-	arxiv = readFile(arxiv_path);
-	% Upload all the audio files into our directory
-	for file_index = 1:length(audio_files)
+	if nargin < 2
 
-		% Get full path
-		target = toAbsPath(audio_files(file_index));
-		% Parse only file name without other path informations
-		dirs = split(target, '/');
-		file_name = dirs{end};
+		%% Update all the audio files
+		fprintf('Processing audio files...\n');
+		% Read from the current arxiv log
+		arxiv_path = fullfile(servC.directory, 'fileArxiv.json');
+		arxiv = readFile(arxiv_path);
+		% Upload all the audio files into our directory
+		for file_index = 1:length(audio_files)
 
-		uploadFileToServer(audio_files(file_index));
+			% Get full path
+			target = toAbsPath(audio_files(file_index));
+			% Parse only file name without other path informations
+			dirs = split(target, '/');
+			file_name = dirs{end};
 
-		% add info if not exist
-		if ~ismember(file_name, string(arxiv.fileNames))
-			arxiv.fileNumber = arxiv.fileNumber +1;
-			arxiv.fileNames{end+1} = file_name;
-		end
+			uploadFileToServer(audio_files(file_index));
 
-	end % for: file_index
+			% add info if not exist
+			if ~ismember(file_name, string(arxiv.fileNames))
+				arxiv.fileNumber = arxiv.fileNumber +1;
+				arxiv.fileNames{end+1} = file_name;
+			end
 
-	% write new fileArxiv
-	writeFile(arxiv_path, arxiv);
+		end % for: file_index
+
+		% write new fileArxiv
+		writeFile(arxiv_path, arxiv);
+
+	end
 
 
 	%% Distribute all the files to every clients
