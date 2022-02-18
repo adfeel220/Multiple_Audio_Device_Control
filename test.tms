@@ -16,6 +16,16 @@
 #    ex:
 #    v 2:20 myDevice2 50        => Change the volume of myDevice2 to 50% at 2:20
 
+# 3. Control LED light
+#    L[ight] {time} {device name} {which strip} {light index} {Red value} {Green value} {Blue value}
+#
+#    ex:
+#    l 0:11 myDevice 0 1 255 255 255     => 'myDevice' set the LED of index 1 on the first strip to display color with RGB = (255, 255, 255). (index starts with 0)
+#
+#    which strip: '0' or '1' to identify the strip
+#    light index: number start counting from 0
+#    RGB value: 0-255 value to determine the hue
+
 
 # Below you can define your time stamp code
 # Be sure each command is seperated by lines

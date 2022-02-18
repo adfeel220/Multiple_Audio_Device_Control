@@ -3,6 +3,22 @@ from pygame import mixer
 import json
 from time import sleep
 
+import platform
+# For raspberry pi
+EXE_ON_PI = False   # Check if the program is running on raspberry pi
+if platform.machine().startswith('arm'):
+    import board
+    from led2801 import ws2801_controller
+    EXE_ON_PI = True
+
+    # Pin config
+    LED_0_CKI = board.D9
+    LED_0_SDI = board.D10
+    LED_1_CKI = board.D11
+    LED_1_SDI = board.D12
+
+
+
 # Instantly print the string on the terminal
 # - So that we can print message in real time when open by another shell
 # - STD doesn't automatcally flush the output stream when executed by another shell
@@ -12,7 +28,7 @@ def printInst(message, end='\n'):
 
 # Play the predefined script and music
 # Return true after finishing all events
-def play(_dir, events, startEventIndex, timeIntervals):
+def play(_dir, events, startEventIndex, timeIntervals, led_controller):
     printInst('Start playing pre-defined audio scripts...')
 
     # Go through all the scheduled events
@@ -55,6 +71,23 @@ def play(_dir, events, startEventIndex, timeIntervals):
             # Change volume
             mixer.music.set_volume(volume)
 
+
+        # Determine if the event is to set LED light
+        elif events[i]['type'][0].lower() == 'l':
+            # Read the led index and the color stored in events
+            led_idx = events[i]['led_index']
+            strip_idx = events[i]['strip']
+            color = tuple(events[i]['color'])
+
+            # Ensure the LED controller is defined
+            if led_controller is None:
+                printInst(f'Unable to control LED on current machine \'{platform.machine()}\'')
+
+            printInst(f'set LED \'{led_idx}\' on the \'{strip_idx}\'e strip to color {color}')
+            
+            # Change color
+            led_controller[strip_idx].setColor(led_idx, color)
+
     # Return for successful playing
     return True
         
@@ -62,7 +95,7 @@ def play(_dir, events, startEventIndex, timeIntervals):
 
 
 # Listen from the command from the NODE controller
-def Listen():
+def Listen(led_controller):
     printInst('Python audio controller start listening...')
 
     # By default, the problem will only be executed once,
@@ -117,7 +150,7 @@ def Listen():
                 timeIntervals = json.loads(timeIntervals)
 
                 # Play the events
-                isPlayed = play(_dir, events, int(startingEventIndex), timeIntervals)
+                isPlayed = play(_dir, events, int(startingEventIndex), timeIntervals, led_controller)
 
         # Termination criteria:
         # 1- All the events are played and finished, already exited from the function 'play'
@@ -126,7 +159,7 @@ def Listen():
         if isPlayed and not mixer.music.get_busy():
             break
 
-
+    led_controller.clear()
     printInst('Python Shell Terminated')
 
                 
@@ -137,5 +170,13 @@ if __name__ == '__main__':
     # Init mixer
     mixer.init(frequency=44100)
 
+    if EXE_ON_PI:
+        # Init LED strip
+        led2801_controls = []
+        led2801_controls.push(ws2801_controller(cki=LED_0_CKI, sdi=LED_0_SDI, led_length=10))
+        led2801_controls.push(ws2801_controller(cki=LED_1_CKI, sdi=LED_1_SDI, led_length=10))
+    else:
+        led2801_controls = None
+
     # Wait for the command from NODE instructions
-    Listen()
+    Listen(led2801_controls)

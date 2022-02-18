@@ -45,7 +45,7 @@ function parseTimestamp(timestampStr) {
             events.push(content);
         }
         // Determine if it's volume command
-        if (script[0].toLowerCase().startsWith('v')) {
+        else if (script[0].toLowerCase().startsWith('v')) {
             let content = {
                 type: 'volume',
                 startTime: '0:00',
@@ -66,6 +66,32 @@ function parseTimestamp(timestampStr) {
 
             // Push the result into the event pool
             events.push(content);
+        }
+        // Determine if it's Light command
+        else if (script[0].toLowerCase().startsWith('l')) {
+
+            let content = {
+                type: 'light',
+                startTime: '0:00',
+                deviceName: '',
+                led_index: 0,
+                color: [0,0,0]
+            }
+
+
+            // Syntax: Light {time} {device name} {which strip} {light index} {Red value} {Green value} {Blue value}
+            content.startTime  = script[1];
+            content.deviceName = script[2];
+            content.strip      = Number(script[3]);
+            content.led_index  = Number(script[4]);
+            content.color      = [Number(script[5]), Number(script[6]), Number(script[7])];
+
+            // Push the event into the event pool
+            events.push(content);
+        }
+        // Default case, unrecognized command
+        else {
+            console.log('Unable to identify the command name %s. Ignore command \'%s\'.', script[0], line);
         }
     });
     

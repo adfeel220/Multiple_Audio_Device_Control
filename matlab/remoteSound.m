@@ -1,4 +1,4 @@
-function remoteSound(target, device, volume, Fs)
+function remoteSound(target, device, light_info, volume, Fs)
 % To control a remote device to play audio.
 
 % Params
@@ -20,9 +20,12 @@ function remoteSound(target, device, volume, Fs)
 
 	% Set default Fs to 8192 Hz as sound() does
 	if nargin < 3
-		volume = 100;
+		light_info = struct;
 	end
 	if nargin < 4
+		volume = 100;
+	end
+	if nargin < 5
 		Fs = 8192;
 	end
 
@@ -114,6 +117,10 @@ function remoteSound(target, device, volume, Fs)
 	function fullpath = generateTimeStampFile()
 		fullpath = fullfile(servC.directory, 'resources', servC.default_tms_name);
 		time_stamp = sprintf('new 0:00 %s %s %d\n', device_name, file_name, volume);
+		% Load light information if it's defined
+		if ~isempty(fieldnames(light_info))
+			time_stamp = sprintf('%slight 0:00 %s %d %d %d %d %d\n', time_stamp, device_name, light_info.strip, light_info.led, light_info.red, light_info.green, light_info.blue);
+		end
 		writeFile(fullpath, time_stamp);
 	end
 
