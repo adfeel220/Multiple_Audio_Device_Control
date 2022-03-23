@@ -17,6 +17,8 @@ if platform.machine().startswith('arm'):
     LED_1_CKI = board.D21   # The CKI/CI pin for the 2nd LED
     LED_1_SDI = board.D20   # The SDI/DI pin for the 2nd LED
 
+    LED_NUM = 5
+    bright = 1.0
 
 
 # Instantly print the string on the terminal
@@ -86,7 +88,8 @@ def play(_dir, events, startEventIndex, timeIntervals, led_controller):
             printInst(f'set LED \'{led_idx}\' on the \'{strip_idx}\'e strip to color {color}')
             
             # Change color
-            led_controller[strip_idx].setColor(led_idx, color)
+            led_controller[strip_idx][led_idx] = color
+            led_controller[strip_idx].show()
 
     # Return for successful playing
     return True
@@ -159,7 +162,10 @@ def Listen(led_controller):
         if isPlayed and not mixer.music.get_busy():
             break
 
-    led_controller.clear()
+    led_controller[0].fill((0,0,0))
+    led_controller[0].show()
+    led_controller[1].fill((0,0,0))
+    led_controller[1].show()
     printInst('Python Shell Terminated')
 
                 
@@ -173,8 +179,8 @@ if __name__ == '__main__':
     if EXE_ON_PI:
         # Init LED strip
         led2801_controls = []
-        led2801_controls.push(ws2801_controller(cki=LED_0_CKI, sdi=LED_0_SDI, led_length=10))
-        led2801_controls.push(ws2801_controller(cki=LED_1_CKI, sdi=LED_1_SDI, led_length=10))
+        led2801_controls.push(adafruit_ws2801.WS2801(LED_0_CKI, LED_0_SDI, LED_NUM, brightness=bright, auto_write=False))
+        led2801_controls.push(adafruit_ws2801.WS2801(LED_1_CKI, LED_1_SDI, LED_NUM, brightness=bright, auto_write=False))
     else:
         led2801_controls = None
 
