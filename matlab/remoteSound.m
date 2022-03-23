@@ -30,6 +30,9 @@ function remoteSound(target, device, light_info, volume, Fs)
 	end
 
 	% Try empty as default value
+	if isempty(light_info)
+		light_info = struct;
+	end
 	if isempty(volume)
 		volume = 100;
 	end

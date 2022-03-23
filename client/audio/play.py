@@ -8,14 +8,14 @@ import platform
 EXE_ON_PI = False   # Check if the program is running on raspberry pi
 if platform.machine().startswith('arm'):
     import board
-    from led2801 import ws2801_controller
+    import adafruit_ws2801
     EXE_ON_PI = True
 
     # Pin config
-    LED_0_CKI = board.D9
-    LED_0_SDI = board.D10
-    LED_1_CKI = board.D11
-    LED_1_SDI = board.D12
+    LED_0_CKI = board.D11   # The CKI/CI pin for the 1st LED
+    LED_0_SDI = board.D10   # The SDI/DI pin for the 1st LED
+    LED_1_CKI = board.D21   # The CKI/CI pin for the 2nd LED
+    LED_1_SDI = board.D20   # The SDI/DI pin for the 2nd LED
 
 
 
