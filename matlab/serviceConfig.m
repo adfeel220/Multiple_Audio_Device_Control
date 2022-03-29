@@ -16,7 +16,7 @@ if ~isfield(servC, 'directory')
 	servC.directory = dir(fullfile(current_path, '../host')).folder;
 end
 
-% Try to read servser status from server log file
+% Try to read server status from server log file
 is_read = readStatus();
 
 if is_read
