@@ -22,7 +22,7 @@ class audioPlayer {
         this.timeStamp = [];
 
         // Open a python object
-        this.pyInterface = new PythonShell('play.py', { scriptPath: path.join(__dirname, 'audio')});     
+        this.pyInterface = new PythonShell('play.py', {pythonPath: 'python3', scriptPath: path.join(__dirname, 'audio')});     
 
         // listen on message sent back from the python program
         this.pyInterface.on('message', message => {
@@ -40,8 +40,8 @@ class audioPlayer {
         // The json file stored in 'fileArxiv.json'
         this.fileList = JSON.parse(fs.readFileSync(__dirname + '/fileArxiv.json'));
 
-        this.loadAudioFile();
         this.readTimeStamp();
+        this.loadAudioFile();
 
         this.startTime = startTimeStr;
 
@@ -52,10 +52,26 @@ class audioPlayer {
     loadAudioFile() {
         console.log('--- Loading audio files ---');
 
+         // Convert the measure of time stamps into intervals
+         let timeIntervals = [];
+         let previous = this.startTime;
+ 
+         // Get effective time stamp, i.e. the time stamps after the start time
+         let effTimeStamp = this.timeStamp.filter(element => element >= this.startTime);      // effTimeStamp is all time stamps >= this.startTime
+         let startingEventIndex = this.events.findIndex(element => timeStr2sec(element.startTime) >= this.startTime );
+ 
+         // Decide the time intervals
+         // So that 'effTimeStamp' consists of a list of timestamps that are later than the starting time
+         effTimeStamp.forEach(current => {
+             // time Intervals contains the waiting time between each event
+             timeIntervals.push(current - previous);
+             previous = current;
+         })
+
         // Update the directory of audio files (passing the absolute directory to python program)
         this.pyInterface.send('DIR ' + this.urlDir);
         // Command python program to load events
-        this.pyInterface.send('LOAD-events ' + JSON.stringify(this.events));
+        this.pyInterface.send('LOAD-events ' + JSON.stringify(this.events) + ' ' + startingEventIndex + ' ' + JSON.stringify(timeIntervals));
 
         console.log('---------------------------');
     }
@@ -79,26 +95,11 @@ class audioPlayer {
 
 
     // Play the audio with pre-arranged event chain given a start time
-    play() {
-
-        // Convert the measure of time stamps into intervals
-        let timeIntervals = [];
-        let previous = this.startTime;
-
-        // Get effective time stamp, i.e. the time stamps after the start time
-        let effTimeStamp = this.timeStamp.filter(element => element >= this.startTime);      // effTimeStamp is all time stamps >= this.startTime
-        let startingEventIndex = this.events.findIndex(element => timeStr2sec(element.startTime) >= this.startTime );
-
-        // Decide the time intervals
-        // So that 'effTimeStamp' consists of a list of timestamps that are later than the starting time
-        effTimeStamp.forEach(current => {
-            // time Intervals contains the waiting time between each event
-            timeIntervals.push(current - previous);
-            previous = current;
-        })
+    play(sys_start, timediff) {
         
         // Since the data is prepared, send the command to python program to execute it
-        this.pyInterface.send('PLAY ' + startingEventIndex + ' ' + JSON.stringify(timeIntervals));
+        this.pyInterface.send('PLAY ' + sys_start + ' ' + timediff.toString());
+        console.log('Wait %d ms to play', Number(sys_start)+timediff-Date.now());
 
         // Prepare the case of terminating the python program
         this.pyInterface.end(function (err, code, signal) {

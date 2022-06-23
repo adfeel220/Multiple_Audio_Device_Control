@@ -17,7 +17,8 @@
     "local-devices": "^3.0.0",
     "morgan": "^1.10.0",
     "serve-favicon": "^2.5.0",
-    "stdio": "^2.1.1"
+    "stdio": "^2.1.1",
+    "timesync": "^1.0.10"
   },
   "type": "module",
   "devDependencies": {

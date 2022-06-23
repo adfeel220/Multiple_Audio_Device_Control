@@ -1,4 +1,4 @@
-function clearFiles()
+function clearAudioFiles()
 % Clear all the files stored in 'host/resources'
 
 	current_path = dir([mfilename('fullpath'),'.m']).folder;

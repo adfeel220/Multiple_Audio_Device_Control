@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { __dirname, ConnectionStatus} from '../app.js';
 import axios from 'axios';
-import path from 'path';
 
 /*
  * A client module to allow web host to send requests to the remote devices
@@ -105,7 +104,7 @@ class client {
     // Update the current host address (control computer) to the remote devices
     async syncAddrFile() {
         this.files = JSON.parse(fs.readFileSync(__dirname + '/fileArxiv.json'));
-        
+
         let promises = [];
 
         for (let i = 0; i < this.devices.num; i++) {
@@ -226,17 +225,26 @@ class client {
 
 
     // Request the remote devices to start playing audios
-    async startPlaying() {
+    startPlaying(defaultWaitMs) {
         let promises = [];
 
+        // set the delay in ms
+        // let time_start;
+        // let waittime = 50 * this.devices.num; // suppose each device takes maximum 50 ms to propagate as a safe margin
+        let system_start_time = Date.now() + defaultWaitMs; // counting 1 sec from now to start playing
+
         for (let i = 0; i < this.devices.num; i++) {
+            // timing recording
+            // time_start = process.hrtime.bigint();
+
             // ignore agents having no tasks this round
             if (this.play_ignore.includes(i))
                 continue;
 
             console.log('Request remote %s to stat playing.', this.devices.names[i]);
 
-            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/play";
+            // let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/play/" + waittime.toString();
+            let addr = "http://" + this.devices.ips[i] + ":" + this.devices.ports[i].toString() + "/play/" + system_start_time.toString();
 
             promises.push(
                 axios({
@@ -248,6 +256,8 @@ class client {
                     console.log('Fail to request playing for \'%s\', getting error:\n%s', this.devices.names[i], err)
                 })
             )
+
+            // waittime -= Number(process.hrtime.bigint() - time_start) / 1000000; // update waiting time in ms
         }
         Promise.all(promises).then(() => {
             this.play_ignore = []

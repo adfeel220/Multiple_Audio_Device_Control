@@ -4,8 +4,14 @@ import fs from 'fs'
 import path from 'path';
 import axios from 'axios'
 import audioPlayer from '../audio/audioPlayer.js';
+import timesync from 'timesync/dist/timesync.js';
 
 let router = Router();
+let sys_time_diff = null;
+let ts = timesync.create({
+  server: null,
+  interval: null
+});
 
 let player = null;
 
@@ -43,7 +49,8 @@ router.get('/download/:filename', (req, res, next) => {
   axios({
     method: 'get',
     url: url,
-    responseType: 'stream'
+    responseType: 'stream',
+    timeout: 10000
   }).then( response => {
     console.log('Receive response (%d) from server when downloading %s', response.status, filename);
 
@@ -129,6 +136,13 @@ router.post('/sync', (req, res, next) => {
   // Update the fileArxiv file to maintain file management
   fs.writeFileSync(__dirname + '/fileArxiv.json', JSON.stringify(fileList));
 
+
+  // Sync server time
+  ts.server = newAddr.address + process.env.NTP_PORT.toString() + '/timesync';
+  let prev_time = ts.now();
+  ts.sync();
+  console.log("Change local time from %d to %d", prev_time, ts.now());
+
   res.sendStatus(200);
 });
 
@@ -194,9 +208,13 @@ router.post('/timeStamp', (req, res) => {
 
 
 // After the devices are ready, start playing
-router.get('/play', (req, res) => {
+router.get('/play/:sys_start', (req, res) => {
+
+  // Obtain the file name to download
+  let sys_start_ms = req.params.sys_start;
+
   // Command the audio player module to start playing
-  player.play();
+  player.play(sys_start_ms, Date.now()-ts.now());
 
   res.sendStatus(200);
 })

@@ -15,7 +15,8 @@
     "jade": "^0.29.0",
     "morgan": "^1.10.0",
     "python-shell": "^3.0.0",
-    "stdio": "^2.1.1"
+    "stdio": "^2.1.1",
+    "timesync": "^1.0.10"
   },
   "type": "module"
 }

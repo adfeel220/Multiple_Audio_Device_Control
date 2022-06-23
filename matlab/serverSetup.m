@@ -34,7 +34,7 @@ servC = serviceConfig();
 % Search for a server
 if isServerExist
 	devices = scanDevices();
-	fprintf('Server found on %s:%s. %d connected devices found.', servC.address, servC.port, size(devices, 1));
+	fprintf('Server found on %s:%s. %d connected devices found.\n', servC.address, servC.port, size(devices, 1));
 % If fails, most possible it's because there's no server, open one via Matlab
 else
 	fprintf('Cannot access to service, try to establish a server...\n');
@@ -42,19 +42,20 @@ else
 	serverRunning = startServer(host_dir);
 
 	if ~serverRunning
-		error('Cannot establish server.');
+		error('Cannot establish server.\n');
 	end
 
 	updateStatus();
 
 	devices = scanDevices();
-	fprintf('Service establish successfully on %s:%s', servC.address, servC.port);
+	fprintf('Service establish successfully on %s:%s\n', servC.address, servC.port);
 end
 
 [isServerExist, pid] = isServerOn();
 % Initialize the initial state of all connected devices
 if isServerExist
 	resp = sendHTTPRequest(servC.uri, 'GET', 'sync');
+	clearAudioFiles();
 end
 
 

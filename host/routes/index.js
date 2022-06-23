@@ -398,15 +398,23 @@ router.post('/ready', (req, res) => {
 
 
 // After ready, start the program
-router.get('/start', (req, res) => {
+router.get('/start/:defaultWait', (req, res) => {
+
+  // The default system waiting time in ms
+  let defaultWaitMs = 0;
+  try {
+    defaultWaitMs = Number(req.params.defaultWait);
+  } catch (error) {
+    console.log("Ignore default waiting time: set to immediate");
+  }
+
   // Using the audioPlayer function to play
-  serClient.startPlaying();
+  serClient.startPlaying(defaultWaitMs);
 
   deviceReady = [];
 
   res.redirect('back');
 })
-
 
 
 export default router;
