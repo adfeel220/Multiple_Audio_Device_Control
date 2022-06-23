@@ -1,7 +1,12 @@
 import sys
 from pygame import mixer
 import json
-from time import sleep
+from time import sleep, time
+from datetime import datetime, timezone
+
+
+WAIT_TIME_LIMIT = 3000  # system start waiting time limit [ms]
+
 
 import platform
 # For raspberry pi
@@ -76,6 +81,9 @@ def play(_dir, events, startEventIndex, timeIntervals, led_controller):
 
         # Determine if the event is to set LED light
         elif events[i]['type'][0].lower() == 'l':
+            # Ignore lighting if it's not on Raspberry pi
+            if not EXE_ON_PI:
+                continue
             # Read the led index and the color stored in events
             led_idx = events[i]['led_index']
             strip_idx = events[i]['strip']
@@ -89,7 +97,12 @@ def play(_dir, events, startEventIndex, timeIntervals, led_controller):
             
             # Change color
             led_controller[strip_idx][led_idx] = color
-            led_controller[strip_idx].show()
+
+        if EXE_ON_PI:
+            # update only when we need to wait for the next event
+            if i+1 < len(events) and timeIntervals[i+1 - startEventIndex]>0 or i+1==len(events):
+                led_controller[0].show()
+                led_controller[1].show()
 
     # Return for successful playing
     return True
@@ -109,6 +122,7 @@ def Listen(led_controller):
 
     # Keep listening from the command sent from the NODE controller
     while True:
+        time_start = time()
         # Read the command sent from the NODE controller via python shell
         command = sys.stdin.readline()
 
@@ -133,25 +147,38 @@ def Listen(led_controller):
             # 
             # The contents within this message is a list of JSON events defined in time stamp files
             # Note that in python the json format is a dictionary
+            #
+            # Also parse again to obtain both starting index and time intervals
+            # - Starting events Index: the first event after the starting time
+            # - Time Intervals: the waiting times between each event
+            # Note that these 2 variables are strings upon loading
             if ord[0].casefold() == 'LOAD-events'.casefold():
-                events = json.loads(ord[1])
+                event_str, startingEventIndex, timeIntervals = ord[1].split(' ', 2)
+                timeIntervals = timeIntervals[:-1]
+                # print((event_str, startingEventIndex, timeIntervals))
+                # events = json.loads(ord[1])
+                events = json.loads(event_str)
                 printInst('----- New events loaded -----')
                 printInst(events)
                 printInst('----------------------------')
+
+                # Transform timeIntervals into proper lists for further usage
+                timeIntervals = json.loads(timeIntervals)
 
 
             # Start to play the events
             # The message is 'Play {starting event index} {list of time intervals}'
             if ord[0].casefold() == 'Play'.casefold():
-                # Parse again to obtain both starting index and time intervals
-                # - Starting events Index: the first event after the starting time
-                # - Time Intervals: the waiting times between each event
-                # Note that these 2 variables are strings upon loading
-                [startingEventIndex, timeIntervals] = ord[1].split(' ', 1)
+                sys_start, timediff = ord[1].split(' ')
+                sys_start = int(sys_start)
+                timediff = int(timediff)
 
-                # Transform timeIntervals into proper lists for further usage
-                timeIntervals = json.loads(timeIntervals)
-
+                # Some weird situation happens where suppose waittime exceed default maximum waiting time (3s)
+                if sys_start + timediff - int(time()*1000) < WAIT_TIME_LIMIT:
+                    # wait until the designate time
+                    while int(time()*1000) < sys_start+timediff:
+                        pass
+                
                 # Play the events
                 isPlayed = play(_dir, events, int(startingEventIndex), timeIntervals, led_controller)
 
@@ -162,10 +189,10 @@ def Listen(led_controller):
         if isPlayed and not mixer.music.get_busy():
             break
 
-    led_controller[0].fill((0,0,0))
-    led_controller[0].show()
-    led_controller[1].fill((0,0,0))
-    led_controller[1].show()
+    # led_controller[0].fill((0,0,0))
+    # led_controller[0].show()
+    # led_controller[1].fill((0,0,0))
+    # led_controller[1].show()
     printInst('Python Shell Terminated')
 
                 
@@ -178,9 +205,10 @@ if __name__ == '__main__':
 
     if EXE_ON_PI:
         # Init LED strip
-        led2801_controls = []
-        led2801_controls.push(adafruit_ws2801.WS2801(LED_0_CKI, LED_0_SDI, LED_NUM, brightness=bright, auto_write=False))
-        led2801_controls.push(adafruit_ws2801.WS2801(LED_1_CKI, LED_1_SDI, LED_NUM, brightness=bright, auto_write=False))
+        led2801_controls = [
+            adafruit_ws2801.WS2801(LED_0_CKI, LED_0_SDI, LED_NUM, brightness=bright, auto_write=False),
+            adafruit_ws2801.WS2801(LED_1_CKI, LED_1_SDI, LED_NUM, brightness=bright, auto_write=False)
+        ]
     else:
         led2801_controls = None
 

@@ -32,18 +32,30 @@
 # 
 # Please write the time stamps incrementally according the start time, otherwise some errors will occur.
 
-new 0:00 local ZaWarudo.wav
-new 0:02 local konodioda.mp3
-new 0:03 pi PillarMen.wav
-new 0:06 local wry.wav
+new 0:00 client119 wry.wav
+new 0:00 client125 wry.wav
 
-v 0:04 pi 40
+# new 0:00 client210 ZaWarudo.wav
+# new 0:00 client119 ZaWarudo.wav
+# new 0:03 client119 PillarMen.wav
+# new 0:03 client210 PillarMen.wav
+# new 0:06 client210 wry.wav
 
-new 0:07 local pornhub-intro.wav
+# v 0:04 client119 40
 
-v 0:07.5 local 40
-new 0:09 pi ToBeContinue.wav
+# new 0:07 client210 pornhub-intro.wav
+# new 0:07 client119 pornhub-intro.wav
 
-new 0:10 local ToBeContinue.wav 100
-v 0:12 local 50
-v 0:13 local 10
+# v 0:07.5 client210 40
+
+#new 0:10 client119 ToBeContinue.wav
+#new 0:10 client210 ToBeContinue.wav 100
+
+# v 0:12 client210 50
+# v 0:13 client210 10
+
+# new 0:15 client119 yare.wav 100
+# new 0:15 client210 yare.wav 100
+
+# new 0:18 client119 giornoTheme.wav
+# new 0:18 client210 giornoTheme.wav

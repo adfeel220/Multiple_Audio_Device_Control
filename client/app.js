@@ -9,8 +9,9 @@ import usersRouter from './routes/users.js';
 import { getIPAddress } from './util/utility.js';
 
 // The IP and port of this device
-process.env.IP = getIPAddress()
-process.env.PORT = 8085
+process.env.IP = getIPAddress();
+process.env.PORT = 8085;
+process.env.NTP_PORT = 8081;
 
 var app = express();
 const __dirname = path.resolve();

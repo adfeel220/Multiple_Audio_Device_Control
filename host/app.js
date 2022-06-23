@@ -9,6 +9,8 @@ import favicon from 'serve-favicon';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import { getIPAddress } from './util/utility.js';
+import timesync_server from 'timesync/server/index.js';
+
 
 const ConnectionStatus =
 {
@@ -18,12 +20,31 @@ const ConnectionStatus =
   other: 3
 };
 
-process.env.IP = getIPAddress()
-process.env.PORT = 8080
+process.env.IP = getIPAddress();
+process.env.PORT = 8080;
+process.env.NTP_PORT = 8081;
 
-
-var app = express();
 const __dirname = path.resolve();
+
+// Initialize ntp sync service
+var sync_app = express();
+sync_app.use('/', express.static(__dirname));
+sync_app.use('/timesync/', express.static(__dirname));
+
+sync_app.post('/timesync', function (req, res) {
+  var data = {
+    id: (req.body && 'id' in req.body) ? req.body.id : null,
+    result: Date.now()
+  };
+  res.json(data);
+  console.log("Sending time %d", data.result);
+});
+sync_app.listen(process.env.NTP_PORT, process.env.IP)
+console.log("Sync server listening on %s:%d", process.env.IP, process.env.NTP_PORT);
+
+
+// Main service
+var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

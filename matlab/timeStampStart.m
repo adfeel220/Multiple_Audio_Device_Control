@@ -8,48 +8,53 @@ function timeStampStart(time_stamp_path, audio_files)
 
 	global servC;
 
-	if nargin < 2
+	%% Update all the audio files
+	fprintf('Processing audio files...\n');
+	% Read from the current arxiv log
+	arxiv_path = fullfile(servC.directory, 'fileArxiv.json');
+	arxiv = readFile(arxiv_path);
+	% Upload all the audio files into our directory
+	for file_index = 1:length(audio_files)
 
-		%% Update all the audio files
-		fprintf('Processing audio files...\n');
-		% Read from the current arxiv log
-		arxiv_path = fullfile(servC.directory, 'fileArxiv.json');
-		arxiv = readFile(arxiv_path);
-		% Upload all the audio files into our directory
-		for file_index = 1:length(audio_files)
+		% Get full path
+		target = toAbsPath(audio_files(file_index));
+		% Parse only file name without other path informations
+		dirs = split(target, '/');
+		file_name = dirs{end};
 
-			% Get full path
-			target = toAbsPath(audio_files(file_index));
-			% Parse only file name without other path informations
-			dirs = split(target, '/');
-			file_name = dirs{end};
+		uploadFileToServer(audio_files(file_index));
 
-			uploadFileToServer(audio_files(file_index));
+		% add info if not exist
+		if ~ismember(file_name, string(arxiv.fileNames))
+			fprintf('Adding %s to host directory\n', file_name);
+			arxiv.fileNumber = arxiv.fileNumber +1;
+			arxiv.fileNames{end+1} = file_name;
+		end
 
-			% add info if not exist
-			if ~ismember(file_name, string(arxiv.fileNames))
-				arxiv.fileNumber = arxiv.fileNumber +1;
-				arxiv.fileNames{end+1} = file_name;
-			end
+	end % for: file_index
 
-		end % for: file_index
-
-		% write new fileArxiv
-		writeFile(arxiv_path, arxiv);
-
-	end
+	% write new fileArxiv
+	writeFile(arxiv_path, arxiv);
 
 
-	%% Distribute all the files to every clients
+
+	% Distribute all the files to every clients
 	resp = sendHTTPRequest(servC.uri, 'GET', 'sync');
 
-	%% Transmit the request to execute
+	% Transmit the request to execute
 	tms_full_path = toAbsPath(time_stamp_path);
+
+	% Wait for synchronization, suppose each file took 10 ms to send.
+	num_devices = size(servC.devices, 1);
+	num_files = arxiv.fileNumber;
+	pause(num_devices*num_files*10/1000);
 
 	% Send ready signal for processing
 	ready_res = sendHTTPRequest(servC.uri, 'POST', 'ready', tms_full_path);
+	pause(50/1000); % pause 50 ms for safety
+
 	% Send play signal once ready
-	play_res = sendHTTPRequest(servC.uri, 'GET', 'start');
+	play_res = sendHTTPRequest(servC.uri, 'GET', ['start/', num2str(servC.default_wait_time)]);
 
 	fprintf('Start playing assigned audio events.\n');
 
