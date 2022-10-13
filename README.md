@@ -1,6 +1,6 @@
 ---
 title: Manual of Multiple Audio Control System
-arthor: Tsai, Chun-Tso (蔡淳佐)
+author: Tsai, Chun-Tso (蔡淳佐)
 ---
 # Introduction
 This is a project aimed at remote controlling over multiple audio devices. By establishing simple Web services over the network, we can make certain devices play specific sounds at any given time and coordinate all the devices.
